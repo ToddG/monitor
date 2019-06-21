@@ -3,11 +3,17 @@ all: start
 
 .PHONY: start
 start: stop
-	# added `grafana:user: ${GRAFANA_USER_ID}` to docker-compose.yml in
+	# added `grafana:user: ${USER_ID}` to docker-compose.yml in
 	# order to have write access to the current directory from docker
-	export GRAFANA_USER_ID=$(shell id -u) && docker-compose up -d
+	export USER_ID=$(shell id -u) && docker-compose up -d
+	docker ps
+	sensible-browser http://localhost:3000
 
 
 .PHONY: stop
 stop:
-	docker-compose down
+	export USER_ID=$(shell id -u) && docker-compose down --remove-orphans
+
+.PHONY: go
+go:
+	sensible-browser http://localhost:3000

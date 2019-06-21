@@ -1,28 +1,27 @@
 version: '3'
 
 services:
-  collectd:
-    image: fr3nd/collectd
-    privileged: true
-    network_mode: host
-    volumes:
-      - /proc:/mnt/proc:ro
-      - ./config/collectd.conf:/etc/collectd/collectd.conf
-  influxdb:
-    image: influxdb:1.5.4
+  graphite:
+    environment:
+        - COLLECTD=1
+    image: graphiteapp/graphite-statsd
     ports:
-      - "8083:8083"
-      - "8086:8086"
-      - "25826:25826/udp"
-    volumes:
-      - ./storage/influxdb:/var/lib/influxdb
-      - ./config/influxdb.conf:/etc/influxdb/influxdb.conf
-      - ./config/types.db:/usr/share/collectd/types.db:ro
+      - "8080:8080"
+      - "80:80"
+      - "2003-2004:2003-2004"
+      - "2023-2024:2023-2024"
+      - "8125:8125/udp"
+      - "8126:8126"
+    restart: always
   grafana:
+    restart: always
     image: grafana/grafana:6.2.4
     ports:
       - "3000:3000"
     volumes:
       - ./storage/grafana:/var/lib/grafana
-    user: ${GRAFANA_USER_ID}
-
+    user: ${USER_ID}
+    links:
+      - graphite
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=password123
