@@ -26,3 +26,23 @@ services:
       - ./storage/grafana:/var/lib/grafana
     user: ${GRAFANA_USER_ID}
 
+  prometheus:
+    image: prom/prometheus:v2.10.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - "${CURRENT_DIRECTORY}/config/prometheus.yml:/etc/prometheus/prometheus.yml"
+
+  node-exporter:
+    image: prom/node-exporter:v0.18.1
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    ports:
+      - '9100:9100'
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+    ports:
+      - 9100:9100
