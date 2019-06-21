@@ -15,7 +15,7 @@ services:
       - "8086:8086"
       - "25826:25826/udp"
     volumes:
-      - /var/lib/influxdb
+      - ./storage/influxdb:/var/lib/influxdb
       - ./config/influxdb.conf:/etc/influxdb/influxdb.conf
       - ./config/types.db:/usr/share/collectd/types.db:ro
   grafana:
@@ -23,6 +23,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - "./storage/grafana:/var/lib/grafana"
+      - ./storage/grafana:/var/lib/grafana
     user: ${GRAFANA_USER_ID}
 
