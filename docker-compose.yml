@@ -15,7 +15,7 @@ services:
       - "8086:8086"
       - "25826:25826/udp"
     volumes:
-      - ./storage/influxdb:/var/lib/influxdb
+      - influxdb_data:/var/lib/influxdb
       - ./config/influxdb.conf:/etc/influxdb/influxdb.conf
       - ./config/types.db:/usr/share/collectd/types.db:ro
   grafana:
@@ -31,7 +31,8 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - "${CURRENT_DIRECTORY}/config/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - ${CURRENT_DIRECTORY}/config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
 
   node-exporter:
     image: prom/node-exporter:v0.18.1
@@ -46,3 +47,15 @@ services:
       - '--path.sysfs=/host/sys'
     ports:
       - 9100:9100
+
+  telegraf:
+    image: telegraf:1.9.5
+    ports:
+      - '9273:9273'
+    volumes:
+      - ${CURRENT_DIRECTORY}/config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+
+# for persistent data
+volumes:
+  influxdb_data:
+  prometheus_data:
