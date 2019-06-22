@@ -8,7 +8,8 @@ Provides easy-to-use monitoring for systems and applications using docker-compos
 * docker-compose
 * make
 
-## Useage
+
+## Usage
 
 ```bash
 $ make help
@@ -89,19 +90,58 @@ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ```
 
+### How I use this
+
+Suppose I have some code that I want to characterize. I'll stick this into my repo and wire it into my test harness like so:
+
+First, install monitor into the application repo. This way I can make graphs and such that are specific to monitoring the application. But, since I'm cloning the monitor repo, I'm starting out with a bunch of pre-baked goodies rather than starting from scratch.
+
+```bash
+cd ~/repos/
+git clone http://github.com/toddg/monitor.git monitor
+cd ~/repos/some-application-repo
+pushd ~/repos/monitor/ && git archive master --prefix=monitor/ | gzip > monitor.tgz && mv monitor.tgz ~/repos/some-application-repo/. && popd && tar -zxvf monitor.tgz && rm monitor.tgz
+cd monitor
+make start
+```
+
+Now that I've verified that it works, I'll wire monitoring into the application's Makefile: In `~/repos/some-application-repo/Makefile`, add the following:
+
+```make
+.PHONY: build
+build: monitor_start
+        build-awesomeness
+        test-awesomeness
+        $(MAKE) monitor_stop
+
+.PHONY: monitor_start
+monitor_start: 
+	cd monitor && $(MAKE) start
+
+.PHONY: monitor_stop
+monitor_stop: 
+	cd monitor && $(MAKE) stop
+```
+
+
 ## Technology
 
-* Collectors:   collectd, prometheus
-* Store:        influxdb
+* Collectors:   collectd, prometheus-node-exporter
+* Store:        influxdb, prometheus
 * Viewer:       grafana
 
 ## URLS
 
+What I *love* about prometheus is the ability to quickly find out what metrics are being delivered by the collectors. It doesn't get any easier than curling a url.
+
 * prometheus    : http://localhost:9090/targets
 * node-exporter : http://localhost:9100/metrics
+* telegraf      : http://localhost:9273/metrics
 * grafana       : http://localhost:3000
 
 ## Attribution
+
+Here are the links/folks that inspired me to do this:
 
 * Xiao Han
   * https://blog.laputa.io/@justlaputa
@@ -113,6 +153,9 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
   * https://github.com/deadtrickster
   * https://github.com/deadtrickster/beam-dashboards.git
 
+## Apologies
+
+My apologies for checking the blob in: `storage/grafana/grafana.db`. I tried adding the datasources and dashboards as json to the `provisioning/{datasources,dashboards}` directories, but this did not do anything. So I reverted back to my dirty hack of checking the `grafana.db` into the repo.
 
 ## Links
 
