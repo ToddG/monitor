@@ -35,3 +35,10 @@ stop:
 		export CURRENT_DIRECTORY=$(CURDIR) && \
 		docker-compose down
 	docker ps
+
+
+.PHONY: package
+package:
+	git archive master --prefix=monitor/ | gzip > monitor.tgz 
+	# copy monitor.tgz to target directory and untar 
+
